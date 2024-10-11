@@ -1,0 +1,1 @@
+public enum GearState { Neutral, First, Second, Third }
