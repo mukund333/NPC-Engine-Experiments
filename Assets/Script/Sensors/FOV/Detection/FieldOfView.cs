@@ -19,7 +19,7 @@ public class FieldOfView : MonoBehaviour
         Configuration.Origin = transform.position;
         Configuration.OriginTransform = transform; // Add this line
         fovCore = new FOVCore(Configuration);
-       
+
         eventManager = new FOVEventManager();
         visualizer = new FOVVisualizer(Configuration);
 

@@ -2,8 +2,15 @@ using UnityEngine;
 
 public static class ContextResolver
 {
+
+
     public static Vector2 ResolveContexts(float[] interestMap, float[] dangerMap, int numSlots)
     {
+
+        Debug.Log("<color=green>Interest map:</color> " + string.Join(", ", interestMap));
+        Debug.Log("<color=red>Danger map:</color> " + string.Join(", ", dangerMap));
+
+
         Vector2 resultDirection = Vector2.zero;
         float anglePerSlot = 360f / numSlots;
 

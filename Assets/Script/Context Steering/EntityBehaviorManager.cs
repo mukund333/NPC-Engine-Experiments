@@ -13,14 +13,14 @@ public class EntityBehaviorManager : MonoBehaviour
     public float[] combineInterestMap;
     public float[] combineDangerMap;
 
-    public float[] interestMap; // single bahevior map calculation
-    public float[] dangerMap; // single bahevior map calculation
+    //public float[] interestMap; // single bahevior map calculation
+    //public float[] dangerMap; // single bahevior map calculation
 
 
     private Vector2 previousBestDirection;
     public float directionSmoothingFactor = 0.5f;
 
-
+    
     private Dictionary<IBehavior, float> behaviorUtilities = new Dictionary<IBehavior, float>();
     public List<IBehavior> allBehaviors = new List<IBehavior>();
 
@@ -30,33 +30,46 @@ public class EntityBehaviorManager : MonoBehaviour
 
     [SerializeField] private Vector2 bestDirection;
 
-    [SerializeField]
-    FieldOfView fieldOfView;
     #endregion
+
+
+    #region Detection
+
+    [SerializeField] BoxCast2DDectection boxCast2DDectection;
+
+    #endregion
+
+
     void Start()
     {
         movementEngineController = GetComponent<IMovementEngineController>();
+        boxCast2DDectection = GetComponentInChildren<BoxCast2DDectection>();
+
+
 
         combineInterestMap = new float[numSlots];
         combineDangerMap = new float[numSlots];
 
 
-        // Get the FieldOfView component
-         fieldOfView = GetComponentInChildren<FieldOfView>();
 
 
 
         allBehaviors.Add(new ArriveBehavior());
-        allBehaviors.Add(new ObstacleAvoidanceBehavior(fieldOfView));
+        allBehaviors.Add(new ObstacleAvoidanceBehavior(1,12f, boxCast2DDectection));
     }
 
- 
 
-    void FixedUpdate()
+    private void Update()
     {
         //final direction
         DirectionCalculation();
         movementEngineController.SetDirection(bestDirection);
+    }
+
+
+    void FixedUpdate()
+    {
+       
 
         //top gear
         UpdateBehaviorUtilities();
@@ -96,17 +109,19 @@ public class EntityBehaviorManager : MonoBehaviour
         {
             case InfluenceType.Interest:
                 behaviorMap = behavior.CalculateInfluenceMap(transform.position, numSlots, falloffRange);
-                behaviorMap = ContextMapUtility.SmoothContextMap(behaviorMap, smoothingRadius);
+                //behaviorMap = ContextMapUtility.SmoothContextMap(behaviorMap, smoothingRadius);
                 NormalizeMap(behaviorMap);
                 AddContextMap(combineInterestMap, behaviorMap);
                 break;
             case InfluenceType.Danger:
                 behaviorMap = behavior.CalculateInfluenceMap(transform.position, numSlots, falloffRange);
-                behaviorMap = ContextMapUtility.SmoothContextMap(behaviorMap, smoothingRadius);
+                //behaviorMap = ContextMapUtility.SmoothContextMap(behaviorMap, smoothingRadius);
                 NormalizeMap(behaviorMap);
                 AddContextMap(combineDangerMap, behaviorMap);
                 break;
         }
+
+    
 
         Vector2 newBestDirection = ContextResolver.ResolveContexts(combineInterestMap, combineDangerMap, numSlots);
 

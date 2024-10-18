@@ -21,7 +21,7 @@ public class FOVVisualizer
 
         Gizmos.DrawWireSphere(config.Origin, config.ViewRadius);
 
-        int numSegments =2;
+        int numSegments = 2;
         float segmentAngle = (endAngle - startAngle) / numSegments;
         for (int i = 0; i <= numSegments; i++)
         {

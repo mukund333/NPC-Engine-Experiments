@@ -3,5 +3,7 @@ public enum DangerLevel
     Safe,
     Cautious,
     Threatening,
-    Critical
+    Critical,
+    Crash
+
 }
