@@ -1,13 +1,18 @@
-using UnityEngine;
 
-public class ObstacleDetector : MonoBehaviour
+
+// ObstacleDetector.cs
+using UnityEngine;
+using System.Collections.Generic;
+
+public class ObstacleDetector : MonoBehaviour, IDetectionSystem
 {
-    [SerializeField] private float radius = 1f;        // Circle radius
-    [SerializeField] private float maxDistance = 5f;   // How far to check
-    [SerializeField] private LayerMask obstacleLayer;  // Which layers to check
+    [SerializeField] private float radius = 1f;
+    [SerializeField] private float maxDistance = 5f;
+    [SerializeField] private LayerMask obstacleLayer;
 
     private RaycastHit2D[] hits;
-    private readonly int maxHits = 10;  // Maximum objects to detect
+    private readonly int maxHits = 10;
+    private List<Target> detectedTargets = new List<Target>();
 
     void Start()
     {
@@ -16,49 +21,51 @@ public class ObstacleDetector : MonoBehaviour
 
     void Update()
     {
-        Vector2 direction = transform.up;  // Direction to cast
-        Vector2 origin = transform.position;  // Starting point
+        UpdateDetection();
+    }
+
+    private void UpdateDetection()
+    {
+        detectedTargets.Clear();
+        Vector2 direction = transform.up;
+        Vector2 origin = transform.position;
 
         int numHits = Physics2D.CircleCastNonAlloc(
-            origin,         // Starting point
-            radius,        // Circle radius
-            direction,     // Direction to cast
-            hits,          // Pre-allocated array for results
-            maxDistance,   // How far to check
-            obstacleLayer  // Which layers to check
+            origin,
+            radius,
+            direction,
+            hits,
+            maxDistance,
+            obstacleLayer
         );
 
-        Debug.DrawRay(origin, direction * maxDistance, Color.red);  // Visualization
-
-        // Process all detected hits
         for (int i = 0; i < numHits; i++)
         {
-            Debug.Log($"Hit object: {hits[i].collider.name} at distance: {hits[i].distance}");
-
-            // Example: Change color of hit objects to red
-            var spriteRenderer = hits[i].collider.GetComponent<SpriteRenderer>();
-            if (spriteRenderer != null)
+            Target newTarget = new Target
             {
-                spriteRenderer.color = Color.red;
-            }
+                position = hits[i].collider.transform.position,
+                weight = 1f // All targets equal weight as per requirement
+            };
+            detectedTargets.Add(newTarget);
         }
     }
 
-    // Draw Gizmos to visualize maxDistance and radius in the Scene view
+    public List<Target> GetDetectedTargets()
+    {
+        return detectedTargets;
+    }
+
     private void OnDrawGizmos()
     {
-        Vector2 direction = transform.up;  // Direction to cast
-        Vector2 origin = transform.position;  // Starting point
+        Vector2 direction = transform.up;
+        Vector2 origin = transform.position;
 
-        // Draw the detection range as a line
-        Gizmos.color = Color.green;
+        Gizmos.color = Color.yellow;
         Gizmos.DrawLine(origin, origin + direction * maxDistance);
 
-        // Draw the circle cast as a wire sphere at the starting point
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(origin, radius);
-
-        // Draw the circle cast end point
         Gizmos.DrawWireSphere(origin + direction * maxDistance, radius);
     }
 }
+

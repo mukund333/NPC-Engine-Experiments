@@ -1,61 +1,29 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
 
+using UnityEngine;
+
+[RequireComponent(typeof(ObstacleDetector))]
 public class Entity : MonoBehaviour
 {
-    private InterestMapCalculator interestMap;
-    private float[] currentInterestValues;
+    private DangerMapCalculator dangerMap;
+    private IDetectionSystem detectionSystem;
+    private float[] currentDangerValues;
 
-    [SerializeField] private float searchRadius;    // Radius of the circle
-    [SerializeField] private float castDistance ;    // Distance to cast the circle
-    [SerializeField] private LayerMask targetLayer;
     [SerializeField] private float moveSpeed = 5f;
-
-    // For debug visualization
     [SerializeField] private bool showDebug = true;
     [SerializeField] private float debugRayLength = 1f;
 
     private void Start()
     {
-        interestMap = new InterestMapCalculator();
+        dangerMap = new DangerMapCalculator();
+        detectionSystem = GetComponent<ObstacleDetector>();
     }
 
     private void Update()
     {
-        List<Target> activeTargets = new List<Target>();
-
-        // Define the direction for the cast (e.g., forward or based on movement direction)
-        Vector2 castDirection = transform.up;  // Change direction as needed
-
-        // Use CircleCastAll instead of OverlapCircleAll
-        RaycastHit2D[] hitObjects = Physics2D.CircleCastAll(transform.position, searchRadius, castDirection, castDistance, targetLayer);
-
-        foreach (RaycastHit2D hit in hitObjects)
-        {
-            Collider2D obj = hit.collider;
-
-            Target newTarget = new Target
-            {
-                position = obj.transform.position,
-                weight = DetermineWeight(obj)
-            };
-            activeTargets.Add(newTarget);
-        }
-
-        currentInterestValues = interestMap.CalculateInterestMap(activeTargets, transform.position);
+        var targets = detectionSystem.GetDetectedTargets();
+        currentDangerValues = dangerMap.CalculateInterestMap(targets, transform.position);
         Vector2 moveDirection = GetBestDirection();
-        Move(moveDirection);
-    }
-
-    private float DetermineWeight(Collider2D targetObj)
-    {
-        if (targetObj.CompareTag("Dangers"))
-            return 5f;
-        if (targetObj.CompareTag("Elite"))
-            return 3f;
-        return 1f;
+        //Move(moveDirection);
     }
 
     private Vector2 GetBestDirection()
@@ -63,51 +31,34 @@ public class Entity : MonoBehaviour
         float highestInterest = 0f;
         int bestIndex = 0;
 
-        for (int i = 0; i < currentInterestValues.Length; i++)
+        for (int i = 0; i < currentDangerValues.Length; i++)
         {
-            if (currentInterestValues[i] > highestInterest)
+            if (currentDangerValues[i] > highestInterest)
             {
-                highestInterest = currentInterestValues[i];
+                highestInterest = currentDangerValues[i];
                 bestIndex = i;
             }
         }
 
-        return interestMap.GetDirections()[bestIndex];
+        return dangerMap.GetDirections()[bestIndex];
     }
 
     private void Move(Vector2 direction)
     {
-        //transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
+        transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
     }
 
     private void OnDrawGizmos()
     {
-        if (!showDebug || currentInterestValues == null || interestMap == null) return;
+        if (!showDebug || currentDangerValues == null || dangerMap == null) return;
 
-        Vector2[] dirs = interestMap.GetDirections();
-
-        for (int i = 0; i < currentInterestValues.Length; i++)
+        Vector2[] dirs = dangerMap.GetDirections();
+        for (int i = 0; i < currentDangerValues.Length; i++)
         {
-            // Scale length by interest value
-            float length = currentInterestValues[i] * debugRayLength;
+            float length = currentDangerValues[i] * debugRayLength;
             Vector3 direction = dirs[i] * length;
-
-            // Color gradient from blue (low) to red (high)
-            //Color rayColor = Color.Lerp(Color.blue, Color.red, currentInterestValues[i]);
-            //Gizmos.color = rayColor;
-
-            Gizmos.color = Color.green;    
-            // Draw the direction ray
+            Gizmos.color = Color.red;
             Gizmos.DrawRay(transform.position, direction);
-
-            // Draw sphere at end point for better visibility
-            //Gizmos.DrawWireSphere(transform.position + direction, 0.1f);
         }
-
-        //// Draw detection radius
-        //Gizmos.color = Color.yellow;
-        //Gizmos.DrawWireSphere(transform.position, searchRadius);
-
-       
     }
 }
