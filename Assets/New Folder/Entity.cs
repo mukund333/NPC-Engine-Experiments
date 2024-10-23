@@ -105,8 +105,8 @@ public class Entity : MonoBehaviour
         }
 
         //// Draw detection radius
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, searchRadius);
+        //Gizmos.color = Color.yellow;
+        //Gizmos.DrawWireSphere(transform.position, searchRadius);
 
        
     }
