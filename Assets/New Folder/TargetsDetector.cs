@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 
 
-public class TargetsDetector : MonoBehaviour
+public class TargetsDetector : MonoBehaviour,ITargetDetectionSystem
 {
     [SerializeField] private float searchRadius;    // Radius of the circle
     //[SerializeField] private float castDistance;    // Distance to cast the circle

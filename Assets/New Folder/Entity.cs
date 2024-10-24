@@ -4,10 +4,15 @@ using UnityEngine;
 [RequireComponent(typeof(ObstaclesDetector))]
 public class Entity : MonoBehaviour
 {
-    private DangerMapCalculator dangerMap;
+    private InterestMapCalculator interestMapCalculator;
+    private DangerMapCalculator dangerMapCalculator;
+
+
     private ITargetDetectionSystem targetDetectionSystem;
     private IObstacleDetectionSystem obstacleDetectionSystem;
+
     private float[] currentDangerValues;
+    private float[] currentIntersetValues;
 
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private bool showDebug = true;
@@ -15,14 +20,25 @@ public class Entity : MonoBehaviour
 
     private void Start()
     {
-        dangerMap = new DangerMapCalculator();
+        interestMapCalculator = new InterestMapCalculator();
+        dangerMapCalculator = new DangerMapCalculator();
+
+        targetDetectionSystem = GetComponent<ITargetDetectionSystem>();
         obstacleDetectionSystem = GetComponent<ObstaclesDetector>();
+        
+
     }
 
     private void Update()
     {
         var obstacles = obstacleDetectionSystem.GetDetectedObstacles();
-        currentDangerValues = dangerMap.CalculateDangerMap(obstacles, transform.position);
+        currentDangerValues = dangerMapCalculator.CalculateDangerMap(obstacles, transform.position);
+
+
+        var targets = targetDetectionSystem.GetDetectedTargets();
+        currentIntersetValues = interestMapCalculator.CalculateInterestMap(targets, transform.position);
+
+
         Vector2 moveDirection = GetBestDirection();
         //Move(moveDirection);
     }
@@ -41,7 +57,7 @@ public class Entity : MonoBehaviour
             }
         }
 
-        return dangerMap.GetDirections()[bestIndex];
+        return dangerMapCalculator.GetDirections()[bestIndex];
     }
 
     private void Move(Vector2 direction)
@@ -51,15 +67,29 @@ public class Entity : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (!showDebug || currentDangerValues == null || dangerMap == null) return;
+        //if (!showDebug || currentIntersetValues == null || interestMapCalculator == null) return;
 
-        Vector2[] dirs = dangerMap.GetDirections();
+        //Vector2[] dirs = interestMapCalculator.GetDirections();
+
+        //for (int i = 0; i < currentIntersetValues.Length; i++)
+        //{
+        //    float length = currentIntersetValues[i] * debugRayLength;
+        //    Vector3 direction = dirs[i] * length;
+        //    Gizmos.color = Color.green;
+        //    Gizmos.DrawRay(transform.position, direction);
+        //}
+
+        if (!showDebug || currentDangerValues == null || dangerMapCalculator == null) return;
+
+
+        Vector2[] dirs2 = dangerMapCalculator.GetDirections();
         for (int i = 0; i < currentDangerValues.Length; i++)
         {
             float length = currentDangerValues[i] * debugRayLength;
-            Vector3 direction = dirs[i] * length;
+            Vector3 direction = dirs2[i] * length;
             Gizmos.color = Color.red;
             Gizmos.DrawRay(transform.position, direction);
         }
+
     }
 }
