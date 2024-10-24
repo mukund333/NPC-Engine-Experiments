@@ -4,8 +4,8 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Dangers
-  - Elite
+  - Health
+  - Rare
   layers:
   - Default
   - TransparentFX
@@ -15,8 +15,8 @@ TagManager:
   - UI
   - Player
   - NPC
-  - 
-  - 
+  - Target
+  - Obstacle
   - 
   - 
   - 

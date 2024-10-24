@@ -1,10 +1,7 @@
-
-
-// ObstacleDetector.cs
 using UnityEngine;
 using System.Collections.Generic;
 
-public class ObstacleDetector : MonoBehaviour, IDetectionSystem
+public class ObstaclesDetector : MonoBehaviour, IObstacleDetectionSystem
 {
     [SerializeField] private float radius = 1f;
     [SerializeField] private float maxDistance = 5f;
@@ -12,7 +9,7 @@ public class ObstacleDetector : MonoBehaviour, IDetectionSystem
 
     private RaycastHit2D[] hits;
     private readonly int maxHits = 10;
-    private List<Target> detectedTargets = new List<Target>();
+    [SerializeField] private List<Obstacle_Struct> detectedObstacles = new List<Obstacle_Struct>();
 
     void Start()
     {
@@ -26,10 +23,10 @@ public class ObstacleDetector : MonoBehaviour, IDetectionSystem
 
     private void UpdateDetection()
     {
-        detectedTargets.Clear();
+        detectedObstacles.Clear();
         Vector2 direction = transform.up;
         Vector2 origin = transform.position;
-
+        // detect area cast
         int numHits = Physics2D.CircleCastNonAlloc(
             origin,
             radius,
@@ -39,20 +36,21 @@ public class ObstacleDetector : MonoBehaviour, IDetectionSystem
             obstacleLayer
         );
 
+        // result of detection
         for (int i = 0; i < numHits; i++)
         {
-            Target newTarget = new Target
+            Obstacle_Struct newObstacle = new Obstacle_Struct
             {
                 position = hits[i].collider.transform.position,
                 weight = 1f // All targets equal weight as per requirement
             };
-            detectedTargets.Add(newTarget);
+            detectedObstacles.Add(newObstacle);
         }
     }
-
-    public List<Target> GetDetectedTargets()
+ 
+    public List<Obstacle_Struct> GetDetectedObstacles()
     {
-        return detectedTargets;
+        return detectedObstacles;
     }
 
     private void OnDrawGizmos()
@@ -66,6 +64,18 @@ public class ObstacleDetector : MonoBehaviour, IDetectionSystem
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(origin, radius);
         Gizmos.DrawWireSphere(origin + direction * maxDistance, radius);
+
+        // Draw detected targets
+        Gizmos.color = Color.red; // Change color for detected targets
+        foreach (Obstacle_Struct target in detectedObstacles)
+        {
+            Gizmos.DrawSphere(target.position, 0.1f); // Draw a small sphere at the target position
+        }
+    }
+
+    public List<Target_Struct> GetDetectedTargets()
+    {
+        throw new System.NotImplementedException();
     }
 }
 

@@ -1,11 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public struct Target
-{
-    public Vector2 position;
-    public float weight; // Kept for compatibility but all targets are equal
-}
+
 
 public class DangerMapCalculator
 {
@@ -42,18 +38,18 @@ public class DangerMapCalculator
             return 7;  // Influence 7 directions
     }
 
-    public float[] CalculateInterestMap(List<Target> targets, Vector2 position)
+    public float[] CalculateDangerMap(List<Obstacle_Struct> obstacles, Vector2 position)
     {
-        float[] interestMap = new float[directions.Length];
+        float[] dangerMap = new float[directions.Length];
         float[] directionalInfluence = new float[directions.Length];
         int totalInfluences = 0;
 
-        foreach (Target target in targets)
+        foreach (Obstacle_Struct obstacle in obstacles)
         {
-            float distance = Vector2.Distance(target.position, position);
+            float distance = Vector2.Distance(obstacle.position, position);
             if (distance > 0f && distance <= maxDistance)
             {
-                Vector2 directionToTarget = ((Vector2)target.position - position).normalized;
+                Vector2 directionToTarget = ((Vector2)obstacle.position - position).normalized;
                 int mainDirectionIndex = GetClosestDirectionIndex(directionToTarget);
 
                 // Get exact number of directions to influence based on distance
@@ -63,20 +59,21 @@ public class DangerMapCalculator
                 ApplyDirectionalInfluence(directionalInfluence, mainDirectionIndex, spreadCount);
                 totalInfluences++;
 
-                Debug.Log($"Target at distance {distance:F2} influences {spreadCount} directions. Main direction: {mainDirectionIndex}");
+                //Debug.Log($"Target at distance {distance:F2} influences {spreadCount} directions. Main direction: {mainDirectionIndex}");
             }
         }
 
-        if (totalInfluences == 0) return interestMap;
+        if (totalInfluences == 0) return dangerMap;
 
         // Normalize the interest values
         for (int i = 0; i < directions.Length; i++)
         {
-            interestMap[i] = directionalInfluence[i] / totalInfluences;
-            Debug.Log($"Direction {i}: {directions[i]} - Interest Value: {interestMap[i]}");
+            dangerMap[i] = directionalInfluence[i] / totalInfluences;
+            //Debug.Log($"<color=red>Direction {i}: {directions[i]} - Danger Value: {dangerMap[i]}</color>");
+
         }
 
-        return interestMap;
+        return dangerMap;
     }
 
     private int GetClosestDirectionIndex(Vector2 targetDirection)
@@ -115,4 +112,7 @@ public class DangerMapCalculator
     }
 
     public Vector2[] GetDirections() => directions;
+
+
+   
 }

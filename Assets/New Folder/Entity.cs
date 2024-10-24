@@ -1,11 +1,12 @@
-
+using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(ObstacleDetector))]
+[RequireComponent(typeof(ObstaclesDetector))]
 public class Entity : MonoBehaviour
 {
     private DangerMapCalculator dangerMap;
-    private IDetectionSystem detectionSystem;
+    private ITargetDetectionSystem targetDetectionSystem;
+    private IObstacleDetectionSystem obstacleDetectionSystem;
     private float[] currentDangerValues;
 
     [SerializeField] private float moveSpeed = 5f;
@@ -15,13 +16,13 @@ public class Entity : MonoBehaviour
     private void Start()
     {
         dangerMap = new DangerMapCalculator();
-        detectionSystem = GetComponent<ObstacleDetector>();
+        obstacleDetectionSystem = GetComponent<ObstaclesDetector>();
     }
 
     private void Update()
     {
-        var targets = detectionSystem.GetDetectedTargets();
-        currentDangerValues = dangerMap.CalculateInterestMap(targets, transform.position);
+        var obstacles = obstacleDetectionSystem.GetDetectedObstacles();
+        currentDangerValues = dangerMap.CalculateDangerMap(obstacles, transform.position);
         Vector2 moveDirection = GetBestDirection();
         //Move(moveDirection);
     }
