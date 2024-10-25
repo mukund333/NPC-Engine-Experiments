@@ -3,21 +3,25 @@ using System.Collections.Generic;
 
 
 
-public class TargetsDetector : MonoBehaviour,ITargetDetectionSystem
+public class TargetsDetector : MonoBehaviour
 {
+    [SerializeField] RadialTrigger radialTrigger;
+
     [SerializeField] private float searchRadius;    // Radius of the circle
-    //[SerializeField] private float castDistance;    // Distance to cast the circle
-    [SerializeField] private LayerMask targetLayer;
 
-    [SerializeField] private List<Target_Struct> detectedTargets = new List<Target_Struct>();
+    [SerializeField] private Transform target;
 
-    private RaycastHit2D[] hits;
-    private readonly int maxHits = 10;
+    [SerializeField] private LayerMask detectionLayers;
 
+    // Target Status
+    private bool canSeeTarget = false;
+    [SerializeField] private Vector2 lastKnownPosition;
 
-    void Start()
+    private void Start()
     {
-        hits = new RaycastHit2D[maxHits];
+        radialTrigger = GetComponent<RadialTrigger>();
+        radialTrigger.radius = searchRadius;
+        radialTrigger.target = target;
     }
 
     void Update()
@@ -27,69 +31,37 @@ public class TargetsDetector : MonoBehaviour,ITargetDetectionSystem
 
     private void UpdateDetection()
     {
-        detectedTargets.Clear();
-        Vector2 direction = transform.up;
-        Vector2 origin = transform.position;
-
-
-        // detect area cast
-        int numHits = Physics2D.CircleCastNonAlloc(
-            origin,
-            searchRadius,
-            direction,
-            hits,
-            0,
-            targetLayer
-        );
-
-        // result of detection
-        for (int i = 0; i < numHits; i++)
+        //primary detection
+        if(radialTrigger.inside)
         {
-            Target_Struct newObstacleTarget = new Target_Struct
+            //get target direction
+            Vector2 direction = target.position - transform.position;
+            direction.Normalize();
+
+            //secondary detection
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction,searchRadius,detectionLayers);
+
+            //result of detection
+            //Make sure that the collider we see is on the "Target" layer
+            if (hit.collider != null && hit.collider.gameObject.layer == LayerMask.NameToLayer("Target"))
             {
-                position = hits[i].collider.transform.position,
-             
-                weight = DetermineWeight(hits[i].collider)
-            };
+                canSeeTarget = true;
+                lastKnownPosition = target.position;
+                Debug.DrawRay(transform.position, direction * searchRadius, Color.magenta);
+            }
+            else if(hit.collider != null )
+            {
+                if (canSeeTarget) // Just lost sight
+                {
+                    // Store last position when losing sight
+                    canSeeTarget = false;
+                }
+                //Debug.DrawRay(transform.position, lastKnownPosition * searchRadius, Color.red);
 
-            detectedTargets.Add(newObstacleTarget);
+            }
 
-            // Log the details of the detected target
-            Debug.Log($"Detected Target: Position = {newObstacleTarget.position}, Weight = {newObstacleTarget.weight}");
         }
     }
 
-    private float DetermineWeight(Collider2D targetObj)
-    {
-        if (targetObj.CompareTag("Health"))
-            return 5f;
-        if (targetObj.CompareTag("Rare"))
-            return 3f;
-        return 1f;
-    }
-
-
-    public List<Target_Struct> GetDetectedTargets()
-    {
-        
-
-        return detectedTargets;
-    }
-
-
-    private void OnDrawGizmos()
-    {
-        Vector2 origin = transform.position;
-
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(origin, searchRadius);
-
-        // Draw detected targets
-        Gizmos.color = Color.red; // DarkSeaGreen
-        foreach (Target_Struct target in detectedTargets)
-        {
-            Gizmos.DrawSphere(target.position, 0.1f); // Draw a small sphere at the target position
-        }
-    }
 
 }

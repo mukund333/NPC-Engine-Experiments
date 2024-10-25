@@ -35,8 +35,8 @@ public class Entity : MonoBehaviour
         currentDangerValues = dangerMapCalculator.CalculateDangerMap(obstacles, transform.position);
 
 
-        var targets = targetDetectionSystem.GetDetectedTargets();
-        currentIntersetValues = interestMapCalculator.CalculateInterestMap(targets, transform.position);
+        //var targets = targetDetectionSystem.GetDetectedTargets();
+        //currentIntersetValues = interestMapCalculator.CalculateInterestMap(targets, transform.position);
 
 
         Vector2 moveDirection = GetBestDirection();
