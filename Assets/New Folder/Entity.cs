@@ -8,8 +8,9 @@ public class Entity : MonoBehaviour
     private DangerMapCalculator dangerMapCalculator;
 
 
-    private ITargetDetectionSystem targetDetectionSystem;
+    //private ITargetDetectionSystem targetDetectionSystem;
     private IObstacleDetectionSystem obstacleDetectionSystem;
+    private TargetsDetector targetsDetector;
 
     private float[] currentDangerValues;
     private float[] currentIntersetValues;
@@ -23,9 +24,9 @@ public class Entity : MonoBehaviour
         interestMapCalculator = new InterestMapCalculator();
         dangerMapCalculator = new DangerMapCalculator();
 
-        targetDetectionSystem = GetComponent<ITargetDetectionSystem>();
+        //targetDetectionSystem = GetComponent<ITargetDetectionSystem>();
         obstacleDetectionSystem = GetComponent<ObstaclesDetector>();
-        
+        targetsDetector = GetComponent<TargetsDetector>();
 
     }
 
@@ -36,7 +37,8 @@ public class Entity : MonoBehaviour
 
 
         //var targets = targetDetectionSystem.GetDetectedTargets();
-        //currentIntersetValues = interestMapCalculator.CalculateInterestMap(targets, transform.position);
+        var target = targetsDetector.detectedTarget;
+        currentIntersetValues = interestMapCalculator.CalculateInterestMap(target, transform.position);
 
 
         Vector2 moveDirection = GetBestDirection();
@@ -67,17 +69,17 @@ public class Entity : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        //if (!showDebug || currentIntersetValues == null || interestMapCalculator == null) return;
+        if (!showDebug || currentIntersetValues == null || interestMapCalculator == null) return;
 
-        //Vector2[] dirs = interestMapCalculator.GetDirections();
+        Vector2[] dirs = interestMapCalculator.GetDirections();
 
-        //for (int i = 0; i < currentIntersetValues.Length; i++)
-        //{
-        //    float length = currentIntersetValues[i] * debugRayLength;
-        //    Vector3 direction = dirs[i] * length;
-        //    Gizmos.color = Color.green;
-        //    Gizmos.DrawRay(transform.position, direction);
-        //}
+        for (int i = 0; i < currentIntersetValues.Length; i++)
+        {
+            float length = currentIntersetValues[i] * debugRayLength;
+            Vector3 direction = dirs[i] * length;
+            Gizmos.color = Color.green;
+            Gizmos.DrawRay(transform.position, direction);
+        }
 
         if (!showDebug || currentDangerValues == null || dangerMapCalculator == null) return;
 

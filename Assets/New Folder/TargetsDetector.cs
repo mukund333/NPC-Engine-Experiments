@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.Burst.CompilerServices;
 
 
 
@@ -17,8 +18,11 @@ public class TargetsDetector : MonoBehaviour
     private bool canSeeTarget = false;
     [SerializeField] private Vector2 lastKnownPosition;
 
+
+    public Vector3 detectedTarget;
     private void Start()
     {
+  
         radialTrigger = GetComponent<RadialTrigger>();
         radialTrigger.radius = searchRadius;
         radialTrigger.target = target;
@@ -27,6 +31,9 @@ public class TargetsDetector : MonoBehaviour
     void Update()
     {
         UpdateDetection();
+        if (lastKnownPosition != null)
+            detectedTarget = lastKnownPosition;
+     
     }
 
     private void UpdateDetection()
@@ -45,8 +52,12 @@ public class TargetsDetector : MonoBehaviour
             //Make sure that the collider we see is on the "Target" layer
             if (hit.collider != null && hit.collider.gameObject.layer == LayerMask.NameToLayer("Target"))
             {
+
                 canSeeTarget = true;
                 lastKnownPosition = target.position;
+
+
+
                 Debug.DrawRay(transform.position, direction * searchRadius, Color.magenta);
             }
             else if(hit.collider != null )
@@ -63,5 +74,25 @@ public class TargetsDetector : MonoBehaviour
         }
     }
 
+    //public Target_Struct GetDetectedTarget()
+    //{
 
+
+    //    return detectedTarget;
+    //}
+    private void OnDrawGizmos()
+    {
+        Vector2 origin = transform.position;
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(origin, searchRadius);
+
+        // Draw detected targets
+        Gizmos.color = Color.red; // DarkSeaGreen
+       
+        Gizmos.DrawSphere(lastKnownPosition, 0.1f); // Draw a small sphere at the target position
+       
+    }
+
+   
 }

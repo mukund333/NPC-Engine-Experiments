@@ -28,37 +28,27 @@ public class InterestMapCalculator
     }
 
 
-    public float[] CalculateInterestMap(List<Target_Struct> targets, Vector2 position)
+    public float[] CalculateInterestMap(Vector3 target, Vector2 position)
     {
+
+        //Debug.Log("Target " + target);
+
         float[] interestMap = new float[directions.Length];
-        float[] weightedSum = new float[directions.Length];
-        float totalWeight = 0f;
 
-        // Sum up weights for denominator
-        foreach (Target_Struct target in targets)
-        {
-            totalWeight += target.weight;
-        }
 
-        if (totalWeight <= 0f) return interestMap;
 
-        foreach (Target_Struct target in targets)
-        {
-            Vector2 directionToTarget = ((Vector2)target.position - position).normalized;
+            Vector2 directionToTarget = ((Vector2)target - position).normalized;
+
+     
 
             for (int i = 0; i < directions.Length; i++)
             {
                 float dotProduct = Vector2.Dot(directions[i], directionToTarget);
                 float interest = Mathf.Max(0, dotProduct);
-                weightedSum[i] += interest * target.weight;
-            }
+            interestMap[i] = interest;  
+            Debug.Log($"Direction {i}: {directions[i]} - Interest Value: {interestMap[i]}");
         }
-
-        for (int i = 0; i < directions.Length; i++)
-        {
-            interestMap[i] = weightedSum[i] / totalWeight;
-        }
-
+       
         return interestMap;
     }
 
