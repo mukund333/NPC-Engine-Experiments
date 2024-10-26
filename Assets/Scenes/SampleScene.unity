@@ -1797,6 +1797,7 @@ GameObject:
   - component: {fileID: 1333536648}
   - component: {fileID: 1333536647}
   - component: {fileID: 1333536649}
+  - component: {fileID: 1333536650}
   m_Layer: 0
   m_Name: Entity
   m_TagString: Untagged
@@ -1817,8 +1818,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  showDebug: 1
-  debugRayLength: 2
 --- !u!60 &1333536644
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -1972,6 +1971,8 @@ MonoBehaviour:
   detectionLayers:
     serializedVersion: 2
     m_Bits: 768
+  lastKnownPosition: {x: 0, y: 0}
+  detectedTarget: {x: 0, y: 0, z: 0}
 --- !u!114 &1333536648
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2005,6 +2006,22 @@ MonoBehaviour:
   target: {fileID: 0}
   center: {fileID: 0}
   inside: 0
+--- !u!114 &1333536650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1333536642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2207c2c467ff43e449e971c8b47fde7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showDebug: 1
+  debugRayLength: 1
+  dangerMap: []
+  intersetMap: []
 --- !u!1 &1391999209
 GameObject:
   m_ObjectHideFlags: 0
