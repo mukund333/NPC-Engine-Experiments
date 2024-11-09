@@ -24,6 +24,11 @@ public class ThrustMechanics : MonoBehaviour, IThrustControl
         currentSpeed = 0f;
     }
 
+    private void Update()
+    {
+        Debug.DrawRay(rb.position, rb.velocity.normalized,Color.white);
+    }
+
     public void Accelerate()
     {
         StopCoroutines();

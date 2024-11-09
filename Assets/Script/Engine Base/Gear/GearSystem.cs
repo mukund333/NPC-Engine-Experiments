@@ -10,7 +10,7 @@ public class GearSystem : MonoBehaviour, IGearSystem
     private void Start()
     {
         gearSpeeds[0] = 0f;
-        gearSpeeds[1] = 3f;
+        gearSpeeds[1] = 1f;
         gearSpeeds[2] = 5f;
         gearSpeeds[3] = 7f;
         ResetGears();

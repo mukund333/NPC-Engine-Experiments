@@ -18,7 +18,7 @@ public class TurnMechanics : MonoBehaviour, ITurnController
     
         currentRotationSpeed = 0.01f;
         rb2d = GetComponent<Rigidbody2D>();
-        rb2d.angularDrag = 8f;///prevent Oscillation
+        rb2d.angularDrag = 12f;///prevent Oscillation
     }
 
     //combined Force 
