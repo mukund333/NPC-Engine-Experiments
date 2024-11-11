@@ -12,7 +12,8 @@ public class ContextSteeringManager : MonoBehaviour
 
 
     //private ITargetDetectionSystem targetDetectionSystem;
-    private IObstacleDetectionSystem obstacleDetectionSystem;
+    //private IObstacleDetectionSystem obstacleDetectionSystem;
+    private FieldOfView fieldOfView;
     private TargetsDetector targetsDetector;
 
    [SerializeField] private float[] dangerMap;//current
@@ -33,7 +34,8 @@ public class ContextSteeringManager : MonoBehaviour
         dangerMapCalculator = new DangerMapCalculator();
 
         //targetDetectionSystem = GetComponent<ITargetDetectionSystem>();
-        obstacleDetectionSystem = GetComponent<IObstacleDetectionSystem>();
+        //obstacleDetectionSystem = GetComponent<IObstacleDetectionSystem>();
+        fieldOfView = GetComponent<FieldOfView>();
         targetsDetector = GetComponent<TargetsDetector>();
          mapVisualizer = GetComponent<MapVisualizer>();
 
@@ -41,7 +43,7 @@ public class ContextSteeringManager : MonoBehaviour
 
     private void Update()
     {
-        var obstacles = obstacleDetectionSystem.GetDetectedObstacles();
+        var obstacles = fieldOfView.GetDetectedObstaclesPositions();
         dangerMap = dangerMapCalculator.CalculateDangerMap(obstacles, transform.position);
         mapVisualizer.intersetMap = interestMap;
 

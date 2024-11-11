@@ -9,7 +9,9 @@ public class ObstaclesRadialTrigger : MonoBehaviour,IObstacleDetectionSystem
     [SerializeField] private LayerMask obstacleLayer;
 
     [SerializeField] private RaycastHit2D[] hits;
-    private readonly int maxHits = 10;
+    private readonly int maxHits = 25;//near GameObject allies,obstacles
+
+
     [SerializeField] private List<Obstacle_Struct> detectedObstacles = new List<Obstacle_Struct>();
 
 
@@ -17,23 +19,22 @@ public class ObstaclesRadialTrigger : MonoBehaviour,IObstacleDetectionSystem
     public float Radius { get { return radius; } }
 
 
-   [SerializeField] Collider2D[] nearbyColliders = new Collider2D[20]; // Increase array if needed
-  [SerializeField]  List<Obstacle_Struct> persistentObstacles = new List<Obstacle_Struct>();
+   [SerializeField] Collider2D[] nearbyObstaclesColliders = new Collider2D[20]; // Increase array if needed
 
-    void Start()
+    // Define the layer you want to filter by
+    int obstacleLayerIndex ; // Replace "ObstacleLayerName" with your actual layer name
+
+    private void Awake()
     {
+        obstacleLayerIndex = LayerMask.NameToLayer("Obstacle");
         hits = new RaycastHit2D[maxHits];
     }
-
-    private void Update()
-    {
-        Debug.Log("Persistent Obstacles Count: " + detectedObstacles.Count);
-
-    }
-
+   
+   
     void FixedUpdate()
     {
         UpdateDetection();
+        CalculateObstacles();
     }
     private void UpdateDetection()
     {
@@ -41,104 +42,57 @@ public class ObstaclesRadialTrigger : MonoBehaviour,IObstacleDetectionSystem
         detectedObstacles.Clear();
 
         // Clear the nearbyColliders array to prevent leftover data from previous frames
-        Array.Clear(nearbyColliders, 0, nearbyColliders.Length);
+        Array.Clear(nearbyObstaclesColliders, 0, nearbyObstaclesColliders.Length);
+       
 
         Vector2 origin = transform.position;
         Vector2 direction = transform.up;
-        RaycastHit2D[] hits = new RaycastHit2D[20];
+
 
         int numHits = Physics2D.CircleCastNonAlloc(origin, radius, direction, hits, 0, obstacleLayer);
 
         for (int i = 0; i < numHits; i++)
         {
-            nearbyColliders[i] = hits[i].collider;
 
-            foreach (Collider2D collider in nearbyColliders)
-            {
-                if (collider == null) continue;
-
-                if (collider is PolygonCollider2D polygonCollider)
-                {
-                    foreach (Vector2 localPoint in polygonCollider.points)
-                    {
-                        Vector2 worldPoint = polygonCollider.transform.TransformPoint(localPoint);
-                        float distanceToPoint = Vector2.Distance(transform.position, worldPoint);
-
-                        Obstacle_Struct newObstacle = new Obstacle_Struct
-                        {
-                            position = worldPoint,
-                            weight = 1f
-                        };
-
-                        detectedObstacles.Add(newObstacle);
-                      
-                    }
-                }
+            Collider2D hitCollider = hits[i].collider;
+            if (hitCollider.gameObject.layer == obstacleLayerIndex)
+            { 
+           
+                nearbyObstaclesColliders[i] = hits[i].collider;
             }
         }
     }
 
+    private void CalculateObstacles()
+    {
+       
+        foreach (PolygonCollider2D collider in nearbyObstaclesColliders)
+        {
+            if (collider == null) continue;
 
-    //private void UpdateDetection()
-    //{
-    //    detectedObstacles.Clear();
-    //    Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(transform.position, radius, obstacleLayer);
+          
+                foreach (Vector2 localPoint in collider.points)
+                {
+                    Vector2 worldPoint = collider.transform.TransformPoint(localPoint);
+                    float distanceToPoint = Vector2.Distance(transform.position, worldPoint);
 
-    //    foreach (Collider2D collider in nearbyColliders)
-    //    {
-    //        if (collider is PolygonCollider2D polygonCollider)
-    //        {
-    //            // Loop through each point in the PolygonCollider
-    //            for (int i = 0; i < polygonCollider.points.Length; i++)
-    //            {
-    //                // Transform the local point to world space
-    //                Vector2 worldPoint = polygonCollider.transform.TransformPoint(polygonCollider.points[i]);
+                     if(distanceToPoint <= Radius)
+                    {
 
-    //                // Calculate distance to the point
-    //                float distanceToPoint = Vector2.Distance(transform.position, worldPoint);
+                         Obstacle_Struct newObstacle = new Obstacle_Struct
+                         {
+                            position = worldPoint,
+                            weight = 1f
+                          };
 
-    //                // Optional: Check if this point is the closest to the object or apply custom logic
-    //                Obstacle_Struct newObstacle = new Obstacle_Struct
-    //                {
-    //                    position = worldPoint,
-    //                    weight = 1f / distanceToPoint // Weight can vary by distance
-    //                };
-    //                detectedObstacles.Add(newObstacle);
-    //            }
-    //        }
-    //    }
-    //}
+                        detectedObstacles.Add(newObstacle);
 
-    //private void UpdateDetection()
-    //{
-    //    detectedObstacles.Clear();
-    //    Vector2 direction = transform.up;
-    //    Vector2 origin = transform.position;
-    //    ////detect area cast
-    //    int numHits = Physics2D.CircleCastNonAlloc(
-    //        origin,
-    //        radius,
-    //        direction,
-    //        hits,
-    //        0,
-    //        obstacleLayer
-    //    );
+                    }
 
-    //    ////result of detection
-    //    for (int i = 0; i < numHits; i++)
-    //    {
-    //        Debug.Log(numHits);
-
-    //        ////the exact point of collision
-    //        Obstacle_Struct newObstacle = new Obstacle_Struct
-    //        {
-    //            position = hits[i].point, // Using collision point instead of object center
-    //            weight = 1f
-
-    //        };
-    //        detectedObstacles.Add(newObstacle);
-    //    }
-    //}
+                }
+            
+        }
+    }
 
     public List<Obstacle_Struct> GetDetectedObstacles()
     {
@@ -158,7 +112,7 @@ public class ObstaclesRadialTrigger : MonoBehaviour,IObstacleDetectionSystem
         Gizmos.DrawWireSphere(origin, radius);
         
         // Draw detected targets
-        Gizmos.color = Color.red; // Change color for detected targets
+        Gizmos.color = Color.magenta; // Change color for detected targets
         foreach (var target in detectedObstacles)
         {
             Gizmos.DrawSphere(target.position, 0.2f); // Draw a small sphere at the target position

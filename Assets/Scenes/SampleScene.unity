@@ -2240,6 +2240,7 @@ GameObject:
   - component: {fileID: 1333536653}
   - component: {fileID: 1333536652}
   - component: {fileID: 1333536651}
+  - component: {fileID: 1333536659}
   m_Layer: 0
   m_Name: Entity
   m_TagString: Untagged
@@ -2629,11 +2630,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c227d292f2e9494792d1bf112debd4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radius: 1.77
+  radius: 4
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 512
   showGizmos: 1
+  nearbyObstaclesColliders:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+--- !u!114 &1333536659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1333536642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87385a46230258d44a2f63988167ab0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  threat: {fileID: 0}
+  viewAngle: 0
+  isGizmo: 1
+  viewRadius: 0
+  obstaclesRadialTrigger: {fileID: 0}
 --- !u!1 &1482246645
 GameObject:
   m_ObjectHideFlags: 0
